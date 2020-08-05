@@ -20,8 +20,9 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
+import { MatStepperModule } from '@angular/material/stepper';
 
-import {FlexLayoutModule} from '@angular/flex-layout';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
@@ -47,6 +48,7 @@ const material = [
     MatChipsModule,
     ScrollingModule,
     MatSnackBarModule,
+    MatStepperModule,
     MatTooltipModule,
     FlexLayoutModule
 ];
