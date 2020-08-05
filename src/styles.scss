@@ -1,1 +1,11 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import '~@angular/material/theming';
+// always include only once per project
+// import our custom theme
+@import 'theme.scss';
+
+// specify theme class eg: <body class="my-theme"> ... </body>
+.sqless-theme {
+    // use our theme with angular-material-theme mixin
+    @include angular-material-theme($sqless-theme);
+}
