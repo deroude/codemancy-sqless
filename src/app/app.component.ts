@@ -12,7 +12,7 @@ import { ProgressService } from './services/progress.service';
 })
 export class AppComponent {
 
-  user$: Observable<any>;
+  user$: Observable<User>;
   loading$: Observable<boolean>;
   repos: Repo[] = [];
 
