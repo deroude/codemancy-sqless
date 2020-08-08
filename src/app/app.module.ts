@@ -13,10 +13,12 @@ import { ProgressService } from './services/progress.service';
 import { AppComponent } from './app.component';
 
 import { environment } from '../environments/environment';
+import { GithubBrowserComponent } from './components/github-browser/github-browser.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    GithubBrowserComponent
   ],
   imports: [
     BrowserModule,

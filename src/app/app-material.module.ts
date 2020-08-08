@@ -21,6 +21,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatTreeModule} from '@angular/material/tree';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 
@@ -50,6 +51,7 @@ const material = [
     MatSnackBarModule,
     MatStepperModule,
     MatTooltipModule,
+    MatTreeModule,
     FlexLayoutModule
 ];
 

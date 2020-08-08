@@ -15,10 +15,10 @@ export class ProgressService {
   }
 
   public start(): void {
-    this.loadingState$.next(true);
+    setTimeout(() => this.loadingState$.next(true), 0);
   }
 
   public stop(): void {
-    this.loadingState$.next(false);
+    setTimeout(() => this.loadingState$.next(false), 0);
   }
 }

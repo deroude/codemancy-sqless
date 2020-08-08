@@ -11,6 +11,13 @@ export interface Repo {
   full_name: string;
 }
 
+export interface RepoFile {
+  name: string;
+  path: string;
+  type: 'file' | 'dir';
+  children?: RepoFile[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -25,6 +32,20 @@ export class GithubService {
       switchMap(t => {
         this.progress.start();
         return fromFetch('https://api.github.com/user/repos', { headers: { Authorization: `Bearer ${t}` } })
+          .pipe(
+            tap(() => this.progress.stop()),
+            switchMap(response => response.json()));
+      }
+      )
+    );
+  }
+
+  public getRepoFiles(repo: string, path: string): Observable<RepoFile[]> {
+    return this.authService.gitToken$.pipe(
+      filter(t => t !== null),
+      switchMap(t => {
+        this.progress.start();
+        return fromFetch(`https://api.github.com/repos/${repo}/contents${path}`, { headers: { Authorization: `Bearer ${t}` } })
           .pipe(
             tap(() => this.progress.stop()),
             switchMap(response => response.json()));

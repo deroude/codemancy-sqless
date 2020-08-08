@@ -6,7 +6,7 @@ import { GithubService, Repo } from './services/github.service';
 import { ProgressService } from './services/progress.service';
 
 @Component({
-  selector: 'app-root',
+  selector: 'sqless-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -15,6 +15,7 @@ export class AppComponent {
   user$: Observable<User>;
   loading$: Observable<boolean>;
   repos: Repo[] = [];
+  selectedRepo: Repo;
 
   constructor(private auth: AuthService, private github: GithubService, private progress: ProgressService) {
     this.user$ = this.auth.whoAmI$;
