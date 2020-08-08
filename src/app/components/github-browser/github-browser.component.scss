@@ -10,6 +10,11 @@ div {
     display: none;
 }
 
+mat-card {
+    max-height: 15rem;
+    overflow: auto;
+}
+
 mat-icon {
     font-size: 16px;
     height: 16px;
@@ -28,10 +33,15 @@ mat-tree-node {
     min-height: 24px;
 
     &.leaf {
-        margin-left: 1.15rem;
+        padding-left: 1.15rem;
+        cursor: pointer;
     }
 
     &.disabled {
         opacity: .5;
+    }
+
+    &.selected {
+        background-color: lightblue;
     }
 }

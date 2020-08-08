@@ -23,10 +23,12 @@
           <mat-option *ngFor="let repo of repos" [value]="repo">{{repo.full_name}}</mat-option>
         </mat-select>
       </mat-form-field>
-      <sqless-github-browser *ngIf="!!selectedRepo" [repo]="selectedRepo"></sqless-github-browser>
+      <sqless-github-browser *ngIf="!!selectedRepo" [repo]="selectedRepo" (fileChange)="selectedFile=$event">
+      </sqless-github-browser>
     </form>
     <div>
-      <button mat-flat-button color="primary" matStepperNext>Next</button>
+      <button mat-flat-button color="primary" matStepperNext [disabled]="!selectedFile"
+        (click)="loadSpec()">Next</button>
     </div>
   </mat-step>
   <mat-step>

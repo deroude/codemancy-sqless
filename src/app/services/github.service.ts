@@ -54,4 +54,18 @@ export class GithubService {
     );
   }
 
+  public loadFile(repo: string, path: string): Observable<string> {
+    return this.authService.gitToken$.pipe(
+      filter(t => t !== null),
+      switchMap(t => {
+        this.progress.start();
+        return fromFetch(`https://raw.githubusercontent.com/${repo}/master/${path}`)
+          .pipe(
+            tap(() => this.progress.stop()),
+            switchMap(response => response.text()));
+      }
+      )
+    );
+  }
+
 }

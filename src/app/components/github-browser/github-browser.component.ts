@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, OnChanges, Output, EventEmitter } from '@angular/core';
 import { GithubService, RepoFile, Repo } from 'src/app/services/github.service';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
@@ -13,15 +13,19 @@ export class GithubBrowserComponent implements OnChanges {
 
   files: RepoFile[] = [];
 
-  treeControl: NestedTreeControl<RepoFile> ;
+  treeControl: NestedTreeControl<RepoFile>;
 
   treeDataSource: MatTreeNestedDataSource<RepoFile> = new MatTreeNestedDataSource<RepoFile>();
+
+  selectedFile: RepoFile;
 
   constructor(private gitHubService: GithubService) { }
 
   @Input() repo: Repo;
 
-  ngOnChanges(): void{
+  @Output() fileChange: EventEmitter<RepoFile> = new EventEmitter();
+
+  ngOnChanges(): void {
     this.gitHubService.getRepoFiles(this.repo.full_name, '/').subscribe(r => this.treeDataSource.data = r);
     this.treeControl = new NestedTreeControl<RepoFile>(f => this.gitHubService.getRepoFiles(this.repo.full_name, `/${f.path}`));
   }
@@ -32,6 +36,11 @@ export class GithubBrowserComponent implements OnChanges {
 
   selectableNode(node: RepoFile): boolean {
     return node.type === 'file' && (node.name.endsWith('.yaml') || node.name.endsWith('.yml'));
+  }
+
+  select(node: RepoFile): void {
+    this.selectedFile = node;
+    this.fileChange.emit(node);
   }
 
 }

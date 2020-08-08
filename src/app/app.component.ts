@@ -2,8 +2,11 @@ import { Component } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Observable } from 'rxjs';
 import { User } from 'firebase';
-import { GithubService, Repo } from './services/github.service';
+import { GithubService, Repo, RepoFile } from './services/github.service';
 import { ProgressService } from './services/progress.service';
+import * as yaml from 'js-yaml';
+import { OpenAPIObject, SchemaObject } from 'openapi3-ts';
+import { ApiService } from './services/api.service';
 
 @Component({
   selector: 'sqless-root',
@@ -16,8 +19,9 @@ export class AppComponent {
   loading$: Observable<boolean>;
   repos: Repo[] = [];
   selectedRepo: Repo;
+  selectedFile: RepoFile;
 
-  constructor(private auth: AuthService, private github: GithubService, private progress: ProgressService) {
+  constructor(private auth: AuthService, private github: GithubService, private progress: ProgressService, private apiService: ApiService) {
     this.user$ = this.auth.whoAmI$;
     this.github.repos.subscribe(rs => this.repos = rs);
     this.loading$ = this.progress.loading$;
@@ -30,4 +34,14 @@ export class AppComponent {
   logout(): void {
     this.auth.logout();
   }
+
+  loadSpec(): void {
+    if (this.selectedFile) {
+      this.github.loadFile(this.selectedRepo.full_name, this.selectedFile.path).subscribe(yml => {
+        const doc: OpenAPIObject = yaml.safeLoad(yml);
+        this.apiService.saveApi(doc).subscribe(() => console.log('done'));
+      });
+    }
+  }
+
 }

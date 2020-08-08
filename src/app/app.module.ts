@@ -9,6 +9,7 @@ import { AppMaterialModule } from './app-material.module';
 import { AuthService } from './services/auth.service';
 import { GithubService } from './services/github.service';
 import { ProgressService } from './services/progress.service';
+import { ApiService } from './services/api.service';
 
 import { AppComponent } from './app.component';
 
@@ -27,7 +28,7 @@ import { GithubBrowserComponent } from './components/github-browser/github-brows
     AngularFireModule.initializeApp(environment.firebase),
     AppMaterialModule,
   ],
-  providers: [AuthService, GithubService, ProgressService],
+  providers: [AuthService, GithubService, ProgressService, ApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -9,3 +9,11 @@
     // use our theme with angular-material-theme mixin
     @include angular-material-theme($sqless-theme);
 }
+
+.primary-color {
+    color: mat-color($sqless-primary) !important;
+}
+
+.selected-background {
+    background-color: mat-color($sqless-primary-bg) !important;
+}

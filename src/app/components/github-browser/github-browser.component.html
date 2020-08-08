@@ -1,7 +1,9 @@
 <mat-card>
     <mat-tree [treeControl]="treeControl" [dataSource]="treeDataSource">
         <!-- This is the tree node template for leaf nodes -->
-        <mat-tree-node class="leaf" *matTreeNodeDef="let node" matTreeNodeToggle [class.disabled]="!selectableNode(node)">
+        <mat-tree-node class="leaf" *matTreeNodeDef="let node" matTreeNodeToggle
+            [class.disabled]="!selectableNode(node)" [class.primary-color]="selectableNode(node)"
+            [class.selected-background]="selectedFile?.path === node.path" (click)="select(node)">
             {{node.name}}
         </mat-tree-node>
         <!-- This is the tree node template for expandable nodes -->
