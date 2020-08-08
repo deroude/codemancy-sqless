@@ -48,3 +48,5 @@ Thumbs.db
 environments
 
 .firebase
+
+firebase-debug.log
