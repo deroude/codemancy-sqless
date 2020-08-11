@@ -7,6 +7,7 @@ import { ProgressService } from './services/progress.service';
 import * as yaml from 'js-yaml';
 import { OpenAPIObject, SchemaObject } from 'openapi3-ts';
 import { ApiService } from './services/api.service';
+import { map, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'sqless-root',
@@ -20,6 +21,9 @@ export class AppComponent {
   repos: Repo[] = [];
   selectedRepo: Repo;
   selectedFile: RepoFile;
+
+  completed = false;
+  baseUrl = '';
 
   constructor(private auth: AuthService, private github: GithubService, private progress: ProgressService, private apiService: ApiService) {
     this.user$ = this.auth.whoAmI$;
@@ -39,9 +43,16 @@ export class AppComponent {
     if (this.selectedFile) {
       this.github.loadFile(this.selectedRepo.full_name, this.selectedFile.path).subscribe(yml => {
         const doc: OpenAPIObject = yaml.safeLoad(yml);
-        this.apiService.saveApi(doc).subscribe(() => console.log('done'));
+        this.apiService.saveApi(doc).subscribe(d => {
+          this.completed = d.state === 'COMPLETE';
+          this.baseUrl = d.baseUrl;
+        });
       });
     }
+  }
+
+  get swaggerUrl(): string {
+    return `${this.baseUrl}/api-docs`;
   }
 
 }

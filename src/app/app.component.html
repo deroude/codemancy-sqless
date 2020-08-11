@@ -33,7 +33,9 @@
   </mat-step>
   <mat-step>
     <ng-template matStepLabel>Done</ng-template>
-    <p>You are now done.</p>
+    <p>Setting up your API ...</p>
+    <p *ngIf="completed">Done! Here's your <a [href]="swaggerUrl"
+        target="_blank">OpenAPI docs page</a></p>
     <div>
       <button mat-flat-button color="primary" (click)="stepper.reset()">Reset</button>
     </div>
