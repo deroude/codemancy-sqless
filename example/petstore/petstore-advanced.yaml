@@ -792,7 +792,7 @@ components:
       x-create-sql: >-
         CREATE TABLE {{ schema }}.order (
         id serial NOT NULL PRIMARY KEY, 
-        pet_id int4 NOT NULL REFERENCES pet(id),
+        pet_id int4 NOT NULL REFERENCES {{ schema }}.pet(id),
         quantity int,
         ship_date timestamptz,
         status varchar(20),
