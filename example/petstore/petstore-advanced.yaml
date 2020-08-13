@@ -650,11 +650,11 @@ components:
       xml:
         name: Category
       x-create-sql: >-
-        CREATE TABLE {schema}.category (
+        CREATE TABLE {{ schema }}.category (
         id serial NOT NULL PRIMARY KEY, 
         name varchar(200) NOT NULL        
         )
-      x-drop-sql: DROP TABLE {schema}.category CASCADE; 
+      x-drop-sql: DROP TABLE {{ schema }}.category CASCADE; 
 
     User:
       type: object
@@ -681,7 +681,7 @@ components:
       xml:
         name: User
       x-create-sql: >-
-        CREATE TABLE {schema}.user (
+        CREATE TABLE {{ schema }}.user (
         id serial NOT NULL PRIMARY KEY, 
         username varchar(200),
         first_name varchar(200),
@@ -691,7 +691,7 @@ components:
         phone varchar(40),
         user_status int        
         )
-      x-drop-sql: DROP TABLE {schema}.user CASCADE; 
+      x-drop-sql: DROP TABLE {{ schema }}.user CASCADE; 
 
     Tag:
       type: object
@@ -704,11 +704,11 @@ components:
       xml:
         name: Tag
       x-create-sql: >-
-        CREATE TABLE {schema}.tag (
+        CREATE TABLE {{ schema }}.tag (
         id serial NOT NULL PRIMARY KEY, 
         name varchar(200) NOT NULL        
         )
-      x-drop-sql: DROP TABLE {schema}.tag CASCADE; 
+      x-drop-sql: DROP TABLE {{ schema }}.tag CASCADE; 
 
     Pet:
       required:
@@ -748,19 +748,19 @@ components:
       xml:
         name: Pet
       x-create-sql: >-
-        CREATE TABLE {schema}.pet (
+        CREATE TABLE {{ schema }}.pet (
         id serial NOT NULL PRIMARY KEY, 
         name varchar(200) NOT NULL, 
         photo_urls text[] NOT NULL, 
         status varchar(20) NOT NULL, 
-        category int4 NOT NULL REFERENCES {schema}.category(id)
+        category int4 NOT NULL REFERENCES {{ schema }}.category(id)
         );
-        CREATE TABLE {schema}.pet_tag (
-          pet int4 REFERENCES {schema}.pet(id),
-          tag int4 REFERENCES {schema}.tag(id),
+        CREATE TABLE {{ schema }}.pet_tag (
+          pet int4 REFERENCES {{ schema }}.pet(id),
+          tag int4 REFERENCES {{ schema }}.tag(id),
           PRIMARY KEY (pet,tag)
         );
-      x-drop-sql: DROP TABLE {schema}.pet_tag CASCADE; DROP TABLE {schema}.pet CASCADE;
+      x-drop-sql: DROP TABLE {{ schema }}.pet_tag CASCADE; DROP TABLE {{ schema }}.pet CASCADE;
 
     Order:
       type: object
@@ -790,7 +790,7 @@ components:
       xml:
         name: Order
       x-create-sql: >-
-        CREATE TABLE {schema}.order (
+        CREATE TABLE {{ schema }}.order (
         id serial NOT NULL PRIMARY KEY, 
         pet_id int4 NOT NULL REFERENCES pet(id),
         quantity int,
@@ -798,7 +798,7 @@ components:
         status varchar(20),
         complete boolean DEFAULT false
         )
-      x-drop-sql: DROP TABLE {schema}.order CASCADE; 
+      x-drop-sql: DROP TABLE {{ schema }}.order CASCADE; 
         
     ApiResponse:
       type: object
