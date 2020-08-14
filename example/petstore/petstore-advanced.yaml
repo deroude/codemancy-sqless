@@ -49,17 +49,32 @@ paths:
             schema:
               $ref: '#/components/schemas/Pet'
         required: true
-        x-sql: >-
-          UPDATE {{ schema }}.pet SET 
-          category = '{{ body.category.id }}',
-          name = '{{ body.name }}',
-          photo_urls = {{ body.photoUrls }},
-          status = '{{ body.status }}'
-          WHERE id = {{ body.id }};
-          DELETE FROM {{ schema }}.pet_tag WHERE pet = {{ body.id }};
-          {{ #each body.tags }}
-          INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ({{ body.id }}, {{ this.id }});
-          {{ /each }}
+        x-sql:
+          - template: >-
+            UPDATE {{ schema }}.pet SET 
+            category = $1,
+            name = $2,
+            photo_urls = $3,
+            status = $4
+            WHERE id = $5;
+          params:
+            - body.category.id
+            - body.name
+            - body.photoUrls
+            - body.status
+            - body.id
+          - template: >-
+            DELETE FROM {{ schema }}.pet_tag WHERE pet = $1;
+          params:
+            - body.id
+          - template: >-
+            INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1, $2);
+          params:
+            - body.id
+            - tag
+          foreach:
+            var: tag
+            of: body.tags
       responses:
         '400':
           description: Invalid ID supplied
@@ -90,13 +105,26 @@ paths:
             schema:
               $ref: '#/components/schemas/Pet'
         required: true
-      x-sql: >-
-        WITH re AS (INSERT INTO {{ schema }}.pet ( category, name, photo_urls, status)
-        VALUES ({{ body.category.id }},'{{ body.name }}',{{ body.photoUrls }},'{{ body.status }}') RETURNING id)
-        INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES
-        {{ #each body.tags }}
-         (SELECT id, {{ this.id }} FROM re){{#if @last}};{{else}},{{/if}}
-        {{ /each }};
+      x-sql:
+        - template: >-
+          INSERT INTO {{ schema }}.pet ( category, name, photo_urls, status)
+          VALUES ($1,$2,$3,$4) RETURNING id
+        params:
+          - body.category.id
+          - body.name 
+          - body.photoUrls 
+          - body.status
+        assign: 
+          column: id
+          var: newId
+        - template: >-            
+          INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1,$2)
+        params:
+          - newId
+          - tag
+        foreach:
+          var: tag
+          of: body.tags
       responses:
         '405':
           description: Invalid input
@@ -129,9 +157,11 @@ paths:
                 - available
                 - pending
                 - sold
-      x-sql: >-
-        SELECT * FROM {{ schema }}.pet 
-        WHERE status IN ({{#each query.status }}'{{ this }}'{{#unless @last }},{{ /unless }}{{ /each }});
+      x-sql: 
+        - template:
+          SELECT * FROM {{ schema }}.pet WHERE status = ANY($1)
+        params:
+          - query.status
       responses:
         '200':
           description: successful operation
@@ -173,10 +203,13 @@ paths:
             type: array
             items:
               type: string
-      x-sql: >-
-        SELECT p.* FROM {{ schema }}.pet p 
-        JOIN {{ schema }}.tag t ON p.tag=t.id         
-        WHERE t.name IN ({{#each query.tags }}'{{ this }}'{{#unless @last }},{{ /unless }}{{ /each }})
+      x-sql: 
+        - template: >-
+          SELECT p.* FROM {{ schema }}.pet p 
+          JOIN {{ schema }}.tag t ON p.tag=t.id         
+          WHERE t.name = ANY ($1)
+        params:
+          - query.tags
       responses:
         '200':
           description: successful operation
@@ -214,7 +247,11 @@ paths:
           schema:
             type: integer
             format: int64
-      x-sql: SELECT * from {{ schema }}.pet WHERE id = {{ path.petId }}
+      x-sql: 
+        - template: >-
+          SELECT * from {{ schema }}.pet WHERE id = $1
+        params: 
+          - path.petId
       responses:
         '200':
           description: successful operation
@@ -257,17 +294,32 @@ paths:
                 status:
                   type: string
                   description: Updated status of the pet
-      x-sql: >- 
-        UPDATE {{ schema }}.pet SET 
-        category = '{{ path.petId }}',
-        name = '{{ body.name }}',
-        photo_urls = {{ body.photoUrls }},
-        status = '{{ body.status }}'
-        WHERE id = {{ body.id }};
-        DELETE FROM {{ schema }}.pet_tag WHERE pet = {{ body.id }};
-        {{ #each body.tags }}
-        INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ({{ body.id }}, {{ this.id }});
-        {{ /each }}
+      x-sql: 
+        - template: >- 
+          UPDATE {{ schema }}.pet SET 
+          category = $1,
+          name = $2,
+          photo_urls = $3,
+          status = $4
+          WHERE id = $5;
+        params:
+          - body.category.id
+          - body.name
+          - body.photoUrls
+          - body.status
+          - path.petId
+        - template:
+          DELETE FROM {{ schema }}.pet_tag WHERE pet = $1;
+        params:
+          - path.petId
+        - template: >-            
+          INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1,$2)
+        params:
+          - path.petId
+          - tag
+        foreach:
+          var: tag
+          of: body.tags       
       responses:
         '405':
           description: Invalid input
@@ -293,7 +345,11 @@ paths:
           schema:
             type: integer
             format: int64
-      x-sql: DELETE FROM {{ schema }}.pet WHERE id= {{ path.petId }};
+      x-sql:
+        - template: >-
+          DELETE FROM {{ schema }}.pet WHERE id= $1;
+        params:
+          - path.petId
       responses:
         '400':
           description: Invalid ID supplied
@@ -349,6 +405,9 @@ paths:
       summary: Returns pet inventories by status
       description: Returns a map of status codes to quantities
       operationId: getInventory
+      x-sql:
+        - template: >-
+          SELECT status,count(id) FROM {{ schema }} pet GROUP BY status;
       responses:
         '200':
           description: successful operation
@@ -374,6 +433,16 @@ paths:
             schema:
               $ref: '#/components/schemas/Order'
         required: true
+      x-sql:
+        - template: >-
+          INSERT INTO {{ schema }}.order ( pet_id, quantity, ship_date, status, complete)
+          VALUES ($1,$2,$3,$4,$5)
+        params:
+          - body.petId
+          - body.quantity
+          - body.shipDate 
+          - body.status
+          - body.complete          
       responses:
         '200':
           description: successful operation
@@ -407,6 +476,11 @@ paths:
             minimum: 1
             type: integer
             format: int64
+      x-sql:
+        - template: >-
+          SELECT * FROM {{ schema }}.order where id = $1
+        params:
+          - path.orderId
       responses:
         '200':
           description: successful operation
@@ -440,6 +514,11 @@ paths:
             minimum: 1
             type: integer
             format: int64
+      x-sql:
+        - template: >-
+          DELETE FROM {{ schema }}.order where id = $1
+        params:
+          - path.orderId
       responses:
         '400':
           description: Invalid ID supplied
@@ -454,6 +533,18 @@ paths:
       summary: Create user
       description: This can only be done by the logged in user.
       operationId: createUser
+      x-sql:
+        - template: >-
+          INSERT INTO {{ schema }}.user ( username, first_name, last_name, email, password, phone, user_status)
+          VALUES ($1,$2,$3,$4,crypt($5,gen_salt('bf')),$6,$7)
+        params:
+          - body.username
+          - body.firstName
+          - body.lastName 
+          - body.email
+          - body.password
+          - body.phone
+          - body.userStatus
       requestBody:
         description: Created user object
         content:
@@ -572,6 +663,11 @@ paths:
           required: true
           schema:
             type: string
+      x-sql:
+        - template: >-
+          SELECT * FROM {{ schema }}.user where username = $1
+        params:
+          - path.username
       responses:
         '200':
           description: successful operation
@@ -608,6 +704,26 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
         required: true
+      x-sql:
+        - template: >-
+          UPDATE {{ schema }}.user SET 
+          username = $1, 
+          first_name = $2, 
+          last_name = $3, 
+          email = $4, 
+          password = crypt($5,gen_salt('bf')), 
+          phone = $6, 
+          user_status = $7
+          WHERE username = $8
+        params:
+          - body.username
+          - body.firstName
+          - body.lastName 
+          - body.email
+          - body.password
+          - body.phone
+          - body.userStatus
+          - path.username
       responses:
         '400':
           description: Invalid user supplied
@@ -629,6 +745,11 @@ paths:
           required: true
           schema:
             type: string
+      x-sql:
+        - template: >-
+          DELETE FROM {{ schema }}.user where username = $1
+        params:
+          - path.username
       responses:
         '400':
           description: Invalid username supplied
@@ -649,12 +770,14 @@ components:
           type: string
       xml:
         name: Category
-      x-create-sql: >-
-        CREATE TABLE {{ schema }}.category (
-        id serial NOT NULL PRIMARY KEY, 
-        name varchar(200) NOT NULL        
-        )
-      x-drop-sql: DROP TABLE {{ schema }}.category CASCADE; 
+      x-sql-ddl:
+        create: >-
+          CREATE TABLE {{ schema }}.category (
+          id serial NOT NULL PRIMARY KEY, 
+          name varchar(200) NOT NULL        
+          )
+        drop: >-
+          DROP TABLE {{ schema }}.category CASCADE; 
 
     User:
       type: object
@@ -680,18 +803,19 @@ components:
           format: int32
       xml:
         name: User
-      x-create-sql: >-
-        CREATE TABLE {{ schema }}.user (
-        id serial NOT NULL PRIMARY KEY, 
-        username varchar(200),
-        first_name varchar(200),
-        last_name varchar(200),
-        email varchar(400),
-        password varchar(1024),
-        phone varchar(40),
-        user_status int        
-        )
-      x-drop-sql: DROP TABLE {{ schema }}.user CASCADE; 
+      x-sql-ddl:
+        create: >-
+          CREATE TABLE {{ schema }}.user (
+          id serial NOT NULL PRIMARY KEY, 
+          username varchar(200),
+          first_name varchar(200),
+          last_name varchar(200),
+          email varchar(400),
+          password varchar(1024),
+          phone varchar(40),
+          user_status int        
+          )
+        drop: DROP TABLE {{ schema }}.user CASCADE; 
 
     Tag:
       type: object
@@ -703,12 +827,14 @@ components:
           type: string
       xml:
         name: Tag
-      x-create-sql: >-
-        CREATE TABLE {{ schema }}.tag (
-        id serial NOT NULL PRIMARY KEY, 
-        name varchar(200) NOT NULL        
-        )
-      x-drop-sql: DROP TABLE {{ schema }}.tag CASCADE; 
+      x-sql-ddl:
+        create: >-
+          CREATE TABLE {{ schema }}.tag (
+          id serial NOT NULL PRIMARY KEY, 
+          name varchar(200) NOT NULL        
+          )
+        drop: >-
+          DROP TABLE {{ schema }}.tag CASCADE; 
 
     Pet:
       required:
@@ -747,20 +873,22 @@ components:
             - sold
       xml:
         name: Pet
-      x-create-sql: >-
-        CREATE TABLE {{ schema }}.pet (
-        id serial NOT NULL PRIMARY KEY, 
-        name varchar(200) NOT NULL, 
-        photo_urls text[] NOT NULL, 
-        status varchar(20) NOT NULL, 
-        category int4 NOT NULL REFERENCES {{ schema }}.category(id)
-        );
-        CREATE TABLE {{ schema }}.pet_tag (
-          pet int4 REFERENCES {{ schema }}.pet(id),
-          tag int4 REFERENCES {{ schema }}.tag(id),
-          PRIMARY KEY (pet,tag)
-        );
-      x-drop-sql: DROP TABLE {{ schema }}.pet_tag CASCADE; DROP TABLE {{ schema }}.pet CASCADE;
+      x-sql-ddl:
+        create: >-
+          CREATE TABLE {{ schema }}.pet (
+          id serial NOT NULL PRIMARY KEY, 
+          name varchar(200) NOT NULL, 
+          photo_urls text[] NOT NULL, 
+          status varchar(20) NOT NULL, 
+          category int4 NOT NULL REFERENCES {{ schema }}.category(id)
+          );
+          CREATE TABLE {{ schema }}.pet_tag (
+            pet int4 REFERENCES {{ schema }}.pet(id),
+            tag int4 REFERENCES {{ schema }}.tag(id),
+            PRIMARY KEY (pet,tag)
+          );
+        drop: >-
+          DROP TABLE {{ schema }}.pet_tag CASCADE; DROP TABLE {{ schema }}.pet CASCADE;
 
     Order:
       type: object
@@ -789,16 +917,18 @@ components:
           default: false
       xml:
         name: Order
-      x-create-sql: >-
-        CREATE TABLE {{ schema }}.order (
-        id serial NOT NULL PRIMARY KEY, 
-        pet_id int4 NOT NULL REFERENCES {{ schema }}.pet(id),
-        quantity int,
-        ship_date timestamptz,
-        status varchar(20),
-        complete boolean DEFAULT false
-        )
-      x-drop-sql: DROP TABLE {{ schema }}.order CASCADE; 
+      x-sql-ddl:
+        create: >-
+          CREATE TABLE {{ schema }}.order (
+          id serial NOT NULL PRIMARY KEY, 
+          pet_id int4 NOT NULL REFERENCES {{ schema }}.pet(id),
+          quantity int,
+          ship_date timestamptz,
+          status varchar(20),
+          complete boolean DEFAULT false
+          )
+        drop: >-
+          DROP TABLE {{ schema }}.order CASCADE; 
         
     ApiResponse:
       type: object
