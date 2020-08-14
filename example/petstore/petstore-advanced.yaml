@@ -787,7 +787,9 @@ components:
           CREATE TABLE {{ schema }}.category (
           id serial NOT NULL PRIMARY KEY, 
           name varchar(200) NOT NULL        
-          )
+          );
+          INSERT INTO {{ schema }}.category (name)
+          VALUES ('dog'),('cat');
         drop: >-
           DROP TABLE {{ schema }}.category CASCADE; 
 
