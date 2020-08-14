@@ -161,7 +161,7 @@ paths:
         - template:
           SELECT * FROM {{ schema }}.pet WHERE status = ANY($1)
         params:
-          - query.status
+          - params.status
       responses:
         '200':
           description: successful operation
@@ -209,7 +209,7 @@ paths:
           JOIN {{ schema }}.tag t ON p.tag=t.id         
           WHERE t.name = ANY ($1)
         params:
-          - query.tags
+          - params.tags
       responses:
         '200':
           description: successful operation
@@ -251,7 +251,7 @@ paths:
         - template: >-
           SELECT * from {{ schema }}.pet WHERE id = $1
         params: 
-          - path.petId
+          - params.petId
       responses:
         '200':
           description: successful operation
@@ -307,15 +307,15 @@ paths:
           - body.name
           - body.photoUrls
           - body.status
-          - path.petId
+          - params.petId
         - template:
           DELETE FROM {{ schema }}.pet_tag WHERE pet = $1;
         params:
-          - path.petId
+          - params.petId
         - template: >-            
           INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1,$2)
         params:
-          - path.petId
+          - params.petId
           - tag
         foreach:
           var: tag
@@ -349,7 +349,7 @@ paths:
         - template: >-
           DELETE FROM {{ schema }}.pet WHERE id= $1;
         params:
-          - path.petId
+          - params.petId
       responses:
         '400':
           description: Invalid ID supplied
@@ -480,7 +480,7 @@ paths:
         - template: >-
           SELECT * FROM {{ schema }}.order where id = $1
         params:
-          - path.orderId
+          - params.orderId
       responses:
         '200':
           description: successful operation
@@ -518,7 +518,7 @@ paths:
         - template: >-
           DELETE FROM {{ schema }}.order where id = $1
         params:
-          - path.orderId
+          - params.orderId
       responses:
         '400':
           description: Invalid ID supplied
@@ -667,7 +667,7 @@ paths:
         - template: >-
           SELECT * FROM {{ schema }}.user where username = $1
         params:
-          - path.username
+          - params.username
       responses:
         '200':
           description: successful operation
@@ -723,7 +723,7 @@ paths:
           - body.password
           - body.phone
           - body.userStatus
-          - path.username
+          - params.username
       responses:
         '400':
           description: Invalid user supplied
@@ -749,7 +749,7 @@ paths:
         - template: >-
           DELETE FROM {{ schema }}.user where username = $1
         params:
-          - path.username
+          - params.username
       responses:
         '400':
           description: Invalid username supplied
