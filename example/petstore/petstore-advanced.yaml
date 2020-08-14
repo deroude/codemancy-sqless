@@ -51,31 +51,31 @@ paths:
         required: true
         x-sql:
           - template: >-
-            UPDATE {{ schema }}.pet SET 
-            category = $1,
-            name = $2,
-            photo_urls = $3,
-            status = $4
-            WHERE id = $5 RETURNING *;
-          params:
-            - body.category.id
-            - body.name
-            - body.photoUrls
-            - body.status
-            - body.id
-          return: true
+              UPDATE {{ schema }}.pet SET 
+              category = $1,
+              name = $2,
+              photo_urls = $3,
+              status = $4
+              WHERE id = $5 RETURNING *
+            params:
+              - body.category.id
+              - body.name
+              - body.photoUrls
+              - body.status
+              - body.id
+            return: true
           - template: >-
-            DELETE FROM {{ schema }}.pet_tag WHERE pet = $1;
-          params:
-            - body.id
+              DELETE FROM {{ schema }}.pet_tag WHERE pet = $1
+            params:
+              - body.id
           - template: >-
-            INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1, $2);
-          params:
-            - body.id
-            - tag
-          foreach:
-            var: tag
-            of: body.tags
+              INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1, $2)
+            params:
+              - body.id
+              - tag
+            foreach:
+              var: tag
+              of: body.tags
       responses:
         '400':
           description: Invalid ID supplied
@@ -108,25 +108,25 @@ paths:
         required: true
       x-sql:
         - template: >-
-          INSERT INTO {{ schema }}.pet ( category, name, photo_urls, status)
-          VALUES ($1,$2,$3,$4) RETURNING *
-        params:
-          - body.category.id
-          - body.name 
-          - body.photoUrls 
-          - body.status
-        assign: 
-          column: id
-          var: newId
-        return: true
+            INSERT INTO {{ schema }}.pet ( category, name, photo_urls, status)
+            VALUES ($1,$2,$3,$4) RETURNING *
+          params:
+            - body.category.id
+            - body.name 
+            - body.photoUrls 
+            - body.status
+          assign: 
+            column: id
+            var: newId
+          return: true
         - template: >-            
-          INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1,$2)
-        params:
-          - newId
-          - tag
-        foreach:
-          var: tag
-          of: body.tags
+            INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1,$2)
+          params:
+            - newId
+            - tag
+          foreach:
+            var: tag
+            of: body.tags
       responses:
         '405':
           description: Invalid input
@@ -161,10 +161,10 @@ paths:
                 - sold
       x-sql: 
         - template:
-          SELECT * FROM {{ schema }}.pet WHERE status = ANY($1)
-        params:
-          - params.status
-        return: true
+            SELECT * FROM {{ schema }}.pet WHERE status = ANY($1)
+          params:
+            - params.status
+          return: true
       responses:
         '200':
           description: successful operation
@@ -208,12 +208,12 @@ paths:
               type: string
       x-sql: 
         - template: >-
-          SELECT p.* FROM {{ schema }}.pet p 
-          JOIN {{ schema }}.tag t ON p.tag=t.id         
-          WHERE t.name = ANY ($1)
-        params:
-          - params.tags
-        return: true
+            SELECT p.* FROM {{ schema }}.pet p 
+            JOIN {{ schema }}.tag t ON p.tag=t.id         
+            WHERE t.name = ANY ($1)
+          params:
+            - params.tags
+          return: true
       responses:
         '200':
           description: successful operation
@@ -253,10 +253,10 @@ paths:
             format: int64
       x-sql: 
         - template: >-
-          SELECT * from {{ schema }}.pet WHERE id = $1
-        params: 
-          - params.petId
-        return: true
+            SELECT * from {{ schema }}.pet WHERE id = $1
+          params: 
+            - params.petId
+          return: true
       responses:
         '200':
           description: successful operation
@@ -301,31 +301,31 @@ paths:
                   description: Updated status of the pet
       x-sql: 
         - template: >- 
-          UPDATE {{ schema }}.pet SET 
-          category = $1,
-          name = $2,
-          photo_urls = $3,
-          status = $4
-          WHERE id = $5 RETURNING *;
-        params:
-          - body.category.id
-          - body.name
-          - body.photoUrls
-          - body.status
-          - params.petId
-        return: true
+            UPDATE {{ schema }}.pet SET 
+            category = $1,
+            name = $2,
+            photo_urls = $3,
+            status = $4
+            WHERE id = $5 RETURNING *;
+          params:
+            - body.category.id
+            - body.name
+            - body.photoUrls
+            - body.status
+            - params.petId
+          return: true
         - template:
-          DELETE FROM {{ schema }}.pet_tag WHERE pet = $1;
-        params:
-          - params.petId
+            DELETE FROM {{ schema }}.pet_tag WHERE pet = $1;
+          params:
+            - params.petId
         - template: >-            
-          INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1,$2)
-        params:
-          - params.petId
-          - tag
-        foreach:
-          var: tag
-          of: body.tags       
+            INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1,$2)
+          params:
+            - params.petId
+            - tag
+          foreach:
+            var: tag
+            of: body.tags       
       responses:
         '405':
           description: Invalid input
@@ -353,9 +353,9 @@ paths:
             format: int64
       x-sql:
         - template: >-
-          DELETE FROM {{ schema }}.pet WHERE id= $1;
-        params:
-          - params.petId
+            DELETE FROM {{ schema }}.pet WHERE id= $1;
+          params:
+            - params.petId
       responses:
         '400':
           description: Invalid ID supplied
@@ -413,8 +413,8 @@ paths:
       operationId: getInventory
       x-sql:
         - template: >-
-          SELECT status,count(id) FROM {{ schema }} pet GROUP BY status;
-        return: true
+            SELECT status,count(id) FROM {{ schema }} pet GROUP BY status;
+          return: true
       responses:
         '200':
           description: successful operation
@@ -442,15 +442,15 @@ paths:
         required: true
       x-sql:
         - template: >-
-          INSERT INTO {{ schema }}.order ( pet_id, quantity, ship_date, status, complete)
-          VALUES ($1,$2,$3,$4,$5) RETURNING *
-        params:
-          - body.petId
-          - body.quantity
-          - body.shipDate 
-          - body.status
-          - body.complete         
-        return: true 
+            INSERT INTO {{ schema }}.order ( pet_id, quantity, ship_date, status, complete)
+            VALUES ($1,$2,$3,$4,$5) RETURNING *
+          params:
+            - body.petId
+            - body.quantity
+            - body.shipDate 
+            - body.status
+            - body.complete         
+          return: true 
       responses:
         '200':
           description: successful operation
@@ -486,10 +486,10 @@ paths:
             format: int64
       x-sql:
         - template: >-
-          SELECT * FROM {{ schema }}.order where id = $1
-        params:
-          - params.orderId
-        return: true
+            SELECT * FROM {{ schema }}.order where id = $1
+          params:
+            - params.orderId
+          return: true
       responses:
         '200':
           description: successful operation
@@ -525,9 +525,9 @@ paths:
             format: int64
       x-sql:
         - template: >-
-          DELETE FROM {{ schema }}.order where id = $1
-        params:
-          - params.orderId
+            DELETE FROM {{ schema }}.order where id = $1
+          params:
+            - params.orderId
       responses:
         '400':
           description: Invalid ID supplied
@@ -544,17 +544,17 @@ paths:
       operationId: createUser
       x-sql:
         - template: >-
-          INSERT INTO {{ schema }}.user ( username, first_name, last_name, email, password, phone, user_status)
-          VALUES ($1,$2,$3,$4,crypt($5,gen_salt('bf')),$6,$7) RETURNING *
-        params:
-          - body.username
-          - body.firstName
-          - body.lastName 
-          - body.email
-          - body.password
-          - body.phone
-          - body.userStatus
-        return: true
+            INSERT INTO {{ schema }}.user ( username, first_name, last_name, email, password, phone, user_status)
+            VALUES ($1,$2,$3,$4,crypt($5,gen_salt('bf')),$6,$7) RETURNING *
+          params:
+            - body.username
+            - body.firstName
+            - body.lastName 
+            - body.email
+            - body.password
+            - body.phone
+            - body.userStatus
+          return: true
       requestBody:
         description: Created user object
         content:
@@ -675,10 +675,10 @@ paths:
             type: string
       x-sql:
         - template: >-
-          SELECT * FROM {{ schema }}.user where username = $1
-        params:
-          - params.username
-        return: true
+            SELECT * FROM {{ schema }}.user where username = $1
+          params:
+            - params.username
+          return: true
       responses:
         '200':
           description: successful operation
@@ -717,25 +717,25 @@ paths:
         required: true
       x-sql:
         - template: >-
-          UPDATE {{ schema }}.user SET 
-          username = $1, 
-          first_name = $2, 
-          last_name = $3, 
-          email = $4, 
-          password = crypt($5,gen_salt('bf')), 
-          phone = $6, 
-          user_status = $7
-          WHERE username = $8 RETURNING *
-        params:
-          - body.username
-          - body.firstName
-          - body.lastName 
-          - body.email
-          - body.password
-          - body.phone
-          - body.userStatus
-          - params.username
-        return: true
+            UPDATE {{ schema }}.user SET 
+            username = $1, 
+            first_name = $2, 
+            last_name = $3, 
+            email = $4, 
+            password = crypt($5,gen_salt('bf')), 
+            phone = $6, 
+            user_status = $7
+            WHERE username = $8 RETURNING *
+          params:
+            - body.username
+            - body.firstName
+            - body.lastName 
+            - body.email
+            - body.password
+            - body.phone
+            - body.userStatus
+            - params.username
+          return: true
       responses:
         '400':
           description: Invalid user supplied
@@ -759,9 +759,9 @@ paths:
             type: string
       x-sql:
         - template: >-
-          DELETE FROM {{ schema }}.user where username = $1
-        params:
-          - params.username
+            DELETE FROM {{ schema }}.user where username = $1
+          params:
+            - params.username
       responses:
         '400':
           description: Invalid username supplied
