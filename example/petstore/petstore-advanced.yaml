@@ -51,7 +51,7 @@ paths:
         required: true
         x-sql:
           - template: >-
-              UPDATE {{ schema }}.pet SET 
+              UPDATE pet SET 
               category = $1,
               name = $2,
               photo_urls = $3,
@@ -65,11 +65,11 @@ paths:
               - body.id
             return: true
           - template: >-
-              DELETE FROM {{ schema }}.pet_tag WHERE pet = $1
+              DELETE FROM pet_tag WHERE pet = $1
             params:
               - body.id
           - template: >-
-              INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1, $2)
+              INSERT INTO pet_tag (pet,tag) VALUES ($1, $2)
             params:
               - body.id
               - tag
@@ -108,7 +108,7 @@ paths:
         required: true
       x-sql:
         - template: >-
-            INSERT INTO {{ schema }}.pet ( category, name, photo_urls, status)
+            INSERT INTO pet ( category, name, photo_urls, status)
             VALUES ($1,$2,$3,$4) RETURNING *
           params:
             - body.category.id
@@ -120,7 +120,7 @@ paths:
             var: newId
           return: true
         - template: >-            
-            INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1,$2)
+            INSERT INTO pet_tag (pet,tag) VALUES ($1,$2)
           params:
             - newId
             - tag
@@ -161,7 +161,7 @@ paths:
                 - sold
       x-sql: 
         - template:
-            SELECT * FROM {{ schema }}.pet WHERE status = ANY($1)
+            SELECT * FROM pet WHERE status = ANY($1)
           params:
             - params.status
           return: true
@@ -208,8 +208,8 @@ paths:
               type: string
       x-sql: 
         - template: >-
-            SELECT p.* FROM {{ schema }}.pet p 
-            JOIN {{ schema }}.tag t ON p.tag=t.id         
+            SELECT p.* FROM pet p 
+            JOIN tag t ON p.tag=t.id         
             WHERE t.name = ANY ($1)
           params:
             - params.tags
@@ -253,7 +253,7 @@ paths:
             format: int64
       x-sql: 
         - template: >-
-            SELECT * from {{ schema }}.pet WHERE id = $1
+            SELECT * from pet WHERE id = $1
           params: 
             - params.petId
           return: true
@@ -301,7 +301,7 @@ paths:
                   description: Updated status of the pet
       x-sql: 
         - template: >- 
-            UPDATE {{ schema }}.pet SET 
+            UPDATE pet SET 
             category = $1,
             name = $2,
             photo_urls = $3,
@@ -315,11 +315,11 @@ paths:
             - params.petId
           return: true
         - template:
-            DELETE FROM {{ schema }}.pet_tag WHERE pet = $1;
+            DELETE FROM pet_tag WHERE pet = $1;
           params:
             - params.petId
         - template: >-            
-            INSERT INTO {{ schema }}.pet_tag (pet,tag) VALUES ($1,$2)
+            INSERT INTO pet_tag (pet,tag) VALUES ($1,$2)
           params:
             - params.petId
             - tag
@@ -353,7 +353,7 @@ paths:
             format: int64
       x-sql:
         - template: >-
-            DELETE FROM {{ schema }}.pet WHERE id= $1;
+            DELETE FROM pet WHERE id= $1;
           params:
             - params.petId
       responses:
@@ -442,7 +442,7 @@ paths:
         required: true
       x-sql:
         - template: >-
-            INSERT INTO {{ schema }}.order ( pet_id, quantity, ship_date, status, complete)
+            INSERT INTO order ( pet_id, quantity, ship_date, status, complete)
             VALUES ($1,$2,$3,$4,$5) RETURNING *
           params:
             - body.petId
@@ -486,7 +486,7 @@ paths:
             format: int64
       x-sql:
         - template: >-
-            SELECT * FROM {{ schema }}.order where id = $1
+            SELECT * FROM order where id = $1
           params:
             - params.orderId
           return: true
@@ -525,7 +525,7 @@ paths:
             format: int64
       x-sql:
         - template: >-
-            DELETE FROM {{ schema }}.order where id = $1
+            DELETE FROM order where id = $1
           params:
             - params.orderId
       responses:
@@ -544,7 +544,7 @@ paths:
       operationId: createUser
       x-sql:
         - template: >-
-            INSERT INTO {{ schema }}.user ( username, first_name, last_name, email, password, phone, user_status)
+            INSERT INTO user ( username, first_name, last_name, email, password, phone, user_status)
             VALUES ($1,$2,$3,$4,crypt($5,gen_salt('bf')),$6,$7) RETURNING *
           params:
             - body.username
@@ -675,7 +675,7 @@ paths:
             type: string
       x-sql:
         - template: >-
-            SELECT * FROM {{ schema }}.user where username = $1
+            SELECT * FROM user where username = $1
           params:
             - params.username
           return: true
@@ -717,7 +717,7 @@ paths:
         required: true
       x-sql:
         - template: >-
-            UPDATE {{ schema }}.user SET 
+            UPDATE user SET 
             username = $1, 
             first_name = $2, 
             last_name = $3, 
@@ -759,7 +759,7 @@ paths:
             type: string
       x-sql:
         - template: >-
-            DELETE FROM {{ schema }}.user where username = $1
+            DELETE FROM user where username = $1
           params:
             - params.username
       responses:
@@ -784,14 +784,14 @@ components:
         name: Category
       x-sql-ddl:
         create: >-
-          CREATE TABLE {{ schema }}.category (
+          CREATE TABLE category (
           id serial NOT NULL PRIMARY KEY, 
           name varchar(200) NOT NULL        
           );
-          INSERT INTO {{ schema }}.category (name)
+          INSERT INTO category (name)
           VALUES ('dog'),('cat');
         drop: >-
-          DROP TABLE {{ schema }}.category CASCADE; 
+          DROP TABLE category CASCADE; 
 
     User:
       type: object
@@ -819,7 +819,7 @@ components:
         name: User
       x-sql-ddl:
         create: >-
-          CREATE TABLE {{ schema }}.user (
+          CREATE TABLE user (
           id serial NOT NULL PRIMARY KEY, 
           username varchar(200),
           first_name varchar(200),
@@ -829,7 +829,7 @@ components:
           phone varchar(40),
           user_status int        
           )
-        drop: DROP TABLE {{ schema }}.user CASCADE; 
+        drop: DROP TABLE user CASCADE; 
 
     Tag:
       type: object
@@ -843,12 +843,12 @@ components:
         name: Tag
       x-sql-ddl:
         create: >-
-          CREATE TABLE {{ schema }}.tag (
+          CREATE TABLE tag (
           id serial NOT NULL PRIMARY KEY, 
           name varchar(200) NOT NULL        
           )
         drop: >-
-          DROP TABLE {{ schema }}.tag CASCADE; 
+          DROP TABLE tag CASCADE; 
 
     Pet:
       required:
@@ -889,20 +889,20 @@ components:
         name: Pet
       x-sql-ddl:
         create: >-
-          CREATE TABLE {{ schema }}.pet (
+          CREATE TABLE pet (
           id serial NOT NULL PRIMARY KEY, 
           name varchar(200) NOT NULL, 
           photo_urls text[] NOT NULL, 
           status varchar(20) NOT NULL, 
-          category int4 NOT NULL REFERENCES {{ schema }}.category(id)
+          category int4 NOT NULL REFERENCES category(id)
           );
-          CREATE TABLE {{ schema }}.pet_tag (
-            pet int4 REFERENCES {{ schema }}.pet(id),
-            tag int4 REFERENCES {{ schema }}.tag(id),
+          CREATE TABLE pet_tag (
+            pet int4 REFERENCES pet(id),
+            tag int4 REFERENCES tag(id),
             PRIMARY KEY (pet,tag)
           );
         drop: >-
-          DROP TABLE {{ schema }}.pet_tag CASCADE; DROP TABLE {{ schema }}.pet CASCADE;
+          DROP TABLE pet_tag CASCADE; DROP TABLE pet CASCADE;
 
     Order:
       type: object
@@ -933,16 +933,16 @@ components:
         name: Order
       x-sql-ddl:
         create: >-
-          CREATE TABLE {{ schema }}.order (
+          CREATE TABLE order (
           id serial NOT NULL PRIMARY KEY, 
-          pet_id int4 NOT NULL REFERENCES {{ schema }}.pet(id),
+          pet_id int4 NOT NULL REFERENCES pet(id),
           quantity int,
           ship_date timestamptz,
           status varchar(20),
           complete boolean DEFAULT false
           )
         drop: >-
-          DROP TABLE {{ schema }}.order CASCADE; 
+          DROP TABLE order CASCADE; 
         
     ApiResponse:
       type: object

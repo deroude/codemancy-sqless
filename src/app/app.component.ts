@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, NgZone } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Observable } from 'rxjs';
 import { User } from 'firebase';
@@ -8,6 +8,11 @@ import * as yaml from 'js-yaml';
 import { OpenAPIObject, SchemaObject } from 'openapi3-ts';
 import { ApiService } from './services/api.service';
 import { map, filter } from 'rxjs/operators';
+import 'brace';
+import 'brace/mode/yaml';
+import 'brace/theme/github';
+import { AceComponent } from 'ngx-ace-wrapper';
+
 
 @Component({
   selector: 'sqless-root',
@@ -25,11 +30,21 @@ export class AppComponent {
   completed = false;
   baseUrl = '';
 
-  constructor(private auth: AuthService, private github: GithubService, private progress: ProgressService, private apiService: ApiService) {
+  @ViewChild(AceComponent)
+  ace: AceComponent;
+
+  constructor(
+    private auth: AuthService,
+    private github: GithubService,
+    private progress: ProgressService,
+    private apiService: ApiService) {
     this.user$ = this.auth.whoAmI$;
     this.github.repos.subscribe(rs => this.repos = rs);
     this.loading$ = this.progress.loading$;
   }
+
+  aceConfig = {};
+  code = '';
 
   login(): void {
     this.auth.login();
@@ -49,6 +64,28 @@ export class AppComponent {
         });
       });
     }
+  }
+
+  get codeValid(): boolean {
+    if (!!this.code.trim()) {
+      try {
+        const doc: OpenAPIObject = yaml.safeLoad(this.code);
+        // this.ace.directiveRef.ace().getSession().setAnnotations([{
+        //   row: 1,
+        //   column: 1,
+        //   text: 'Error',
+        //   type: 'error'
+        // }]);
+        return true;
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    return false;
+  }
+
+  get nextActive(): boolean {
+    return !!this.selectedFile || this.codeValid;
   }
 
   get swaggerUrl(): string {

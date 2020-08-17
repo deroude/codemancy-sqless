@@ -15,6 +15,9 @@ import { AppComponent } from './app.component';
 
 import { environment } from '../environments/environment';
 import { GithubBrowserComponent } from './components/github-browser/github-browser.component';
+import { FormsModule } from '@angular/forms';
+
+import { AceModule } from 'ngx-ace-wrapper';
 
 @NgModule({
   declarations: [
@@ -23,10 +26,12 @@ import { GithubBrowserComponent } from './components/github-browser/github-brows
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    AceModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AppMaterialModule,
+    AppMaterialModule
   ],
   providers: [AuthService, GithubService, ProgressService, ApiService],
   bootstrap: [AppComponent]

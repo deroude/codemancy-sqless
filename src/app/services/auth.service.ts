@@ -5,7 +5,8 @@ import { auth, User } from 'firebase/app';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { ProgressService } from './progress.service';
 import { Account } from '../domain/account';
-import { firestore as firestoreLib } from 'firebase';
+import * as firebase from 'firebase/app';
+import 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,7 @@ export class AuthService {
           if (!doc.exists) {
             this.firestore.collection('accounts')
               .doc<Account>(result.user.email)
-              .set({ accountType: 'FREE', dateJoined: firestoreLib.Timestamp.fromDate(new Date()) });
+              .set({ accountType: 'FREE', dateJoined: firebase.firestore.Timestamp.fromDate(new Date()) });
           }
         });
       }

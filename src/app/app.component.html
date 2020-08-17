@@ -15,27 +15,33 @@
     </ng-template>
   </mat-step>
   <mat-step>
-    <form>
-      <ng-template matStepLabel>Select your OpenAPI spec</ng-template>
-      <mat-form-field>
-        <mat-label>Repository</mat-label>
-        <mat-select [(value)]="selectedRepo">
-          <mat-option *ngFor="let repo of repos" [value]="repo">{{repo.full_name}}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <sqless-github-browser *ngIf="!!selectedRepo" [repo]="selectedRepo" (fileChange)="selectedFile=$event">
-      </sqless-github-browser>
-    </form>
+    <mat-tab-group>
+      <mat-tab label="Select a file from your repository">
+        <form>
+          <ng-template matStepLabel>Select your OpenAPI spec</ng-template>
+          <mat-form-field>
+            <mat-label>Repository</mat-label>
+            <mat-select [(value)]="selectedRepo">
+              <mat-option *ngFor="let repo of repos" [value]="repo">{{repo.full_name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <sqless-github-browser *ngIf="!!selectedRepo" [repo]="selectedRepo" (fileChange)="selectedFile=$event">
+          </sqless-github-browser>
+        </form>
+      </mat-tab>
+      <mat-tab label="...or edit inline">
+        <ace [config]="aceConfig" [mode]="'yaml'" [theme]="'github'" [(value)]="code"></ace>
+      </mat-tab>
+    </mat-tab-group>
     <div>
-      <button mat-flat-button color="primary" matStepperNext [disabled]="!selectedFile"
+      <button mat-flat-button color="primary" matStepperNext [disabled]="!nextActive"
         (click)="loadSpec()">Next</button>
     </div>
   </mat-step>
   <mat-step>
     <ng-template matStepLabel>Done</ng-template>
     <p>Setting up your API ...</p>
-    <p *ngIf="completed">Done! Here's your <a [href]="swaggerUrl"
-        target="_blank">OpenAPI docs page</a></p>
+    <p *ngIf="completed">Done! Here's your <a [href]="swaggerUrl" target="_blank">OpenAPI docs page</a></p>
     <div>
       <button mat-flat-button color="primary" (click)="stepper.reset()">Reset</button>
     </div>

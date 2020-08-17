@@ -17,10 +17,16 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "customWebpackConfig": {
-              "path": "./custom-webpack.config.js",
-              "replaceDuplicatePlugins": true
-            },
+            "allowedCommonJsDependencies":[
+              "@firebase/app",
+              "firebase/app",
+              "@firebase/firestore",
+              "@firebase/auth",
+              "@firebase/component",
+              "@firebase/util",
+              "monaco-editor",
+              "js-yaml"
+            ],
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
