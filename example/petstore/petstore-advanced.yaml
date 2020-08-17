@@ -442,7 +442,7 @@ paths:
         required: true
       x-sql:
         - template: >-
-            INSERT INTO "order" ( pet_id, quantity, ship_date, status, complete)
+            INSERT INTO \"order\" ( pet_id, quantity, ship_date, status, complete)
             VALUES ($1,$2,$3,$4,$5) RETURNING *
           params:
             - body.petId
@@ -486,7 +486,7 @@ paths:
             format: int64
       x-sql:
         - template: >-
-            SELECT * FROM "order" where id = $1
+            SELECT * FROM \"order\" where id = $1
           params:
             - params.orderId
           return: true
@@ -525,7 +525,7 @@ paths:
             format: int64
       x-sql:
         - template: >-
-            DELETE FROM "order" where id = $1
+            DELETE FROM \"order\" where id = $1
           params:
             - params.orderId
       responses:
@@ -544,7 +544,7 @@ paths:
       operationId: createUser
       x-sql:
         - template: >-
-            INSERT INTO "user" ( username, first_name, last_name, email, "password", phone, user_status)
+            INSERT INTO \"user\" ( username, first_name, last_name, email, \"password\", phone, user_status)
             VALUES ($1,$2,$3,$4,crypt($5,gen_salt('bf')),$6,$7) RETURNING *
           params:
             - body.username
@@ -675,7 +675,7 @@ paths:
             type: string
       x-sql:
         - template: >-
-            SELECT * FROM "user" where username = $1
+            SELECT * FROM \"user\" where username = $1
           params:
             - params.username
           return: true
@@ -717,12 +717,12 @@ paths:
         required: true
       x-sql:
         - template: >-
-            UPDATE "user" SET 
+            UPDATE \"user\" SET 
             username = $1, 
             first_name = $2, 
             last_name = $3, 
             email = $4, 
-            "password" = crypt($5,gen_salt('bf')), 
+            \"password\" = crypt($5,gen_salt('bf')), 
             phone = $6, 
             user_status = $7
             WHERE username = $8 RETURNING *
@@ -759,7 +759,7 @@ paths:
             type: string
       x-sql:
         - template: >-
-            DELETE FROM "user" where username = $1
+            DELETE FROM \"user\" where username = $1
           params:
             - params.username
       responses:
@@ -819,17 +819,17 @@ components:
         name: User
       x-sql-ddl:
         create: >-
-          CREATE TABLE "user" (
+          CREATE TABLE \"user\" (
           id serial NOT NULL PRIMARY KEY, 
           username varchar(200),
           first_name varchar(200),
           last_name varchar(200),
           email varchar(400),
-          "password" varchar(1024),
+          \"password\" varchar(1024),
           phone varchar(40),
           user_status int        
           )
-        drop: DROP TABLE "user" CASCADE; 
+        drop: DROP TABLE \"user\" CASCADE; 
 
     Tag:
       type: object
@@ -933,7 +933,7 @@ components:
         name: Order
       x-sql-ddl:
         create: >-
-          CREATE TABLE "order" (
+          CREATE TABLE \"order\" (
           id serial NOT NULL PRIMARY KEY, 
           pet_id int4 NOT NULL REFERENCES pet(id),
           quantity int,
@@ -942,7 +942,7 @@ components:
           complete boolean DEFAULT false
           )
         drop: >-
-          DROP TABLE "order" CASCADE; 
+          DROP TABLE \"order\" CASCADE; 
         
     ApiResponse:
       type: object
