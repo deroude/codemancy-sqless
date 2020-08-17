@@ -11,7 +11,6 @@ import { map, filter } from 'rxjs/operators';
 import 'brace';
 import 'brace/mode/yaml';
 import 'brace/theme/github';
-import { AceComponent } from 'ngx-ace-wrapper';
 
 
 @Component({
@@ -32,9 +31,6 @@ export class AppComponent {
 
   editorOptions = { theme: 'vs-light', language: 'yaml' };
   code = `openapi: 3.0.1\n  info:\n    title: Swagger Petstore`;
-
-  @ViewChild(AceComponent)
-  ace: AceComponent;
 
   constructor(
     private auth: AuthService,
