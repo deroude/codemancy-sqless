@@ -8,9 +8,6 @@ import * as yaml from 'js-yaml';
 import { OpenAPIObject, SchemaObject } from 'openapi3-ts';
 import { ApiService } from './services/api.service';
 import { map, filter } from 'rxjs/operators';
-import 'brace';
-import 'brace/mode/yaml';
-import 'brace/theme/github';
 
 
 @Component({
