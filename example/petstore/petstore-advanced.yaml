@@ -163,7 +163,7 @@ paths:
         - template:
             SELECT * FROM pet WHERE status = ANY($1)
           params:
-            - params.status
+            - query.status
           return: true
       responses:
         '200':

@@ -30,6 +30,9 @@ export class AppComponent {
   completed = false;
   baseUrl = '';
 
+  editorOptions = { theme: 'vs-light', language: 'yaml' };
+  code = `openapi: 3.0.1\n  info:\n    title: Swagger Petstore`;
+
   @ViewChild(AceComponent)
   ace: AceComponent;
 
@@ -44,7 +47,7 @@ export class AppComponent {
   }
 
   aceConfig = {};
-  code = '';
+  // code = '';
 
   login(): void {
     this.auth.login();
@@ -57,6 +60,7 @@ export class AppComponent {
   loadSpec(): void {
     if (this.selectedFile) {
       this.github.loadFile(this.selectedRepo.full_name, this.selectedFile.path).subscribe(yml => {
+        this.code = yml;
         const doc: OpenAPIObject = yaml.safeLoad(yml);
         this.apiService.saveApi(doc).subscribe(d => {
           this.completed = d.state === 'COMPLETE';

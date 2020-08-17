@@ -5,6 +5,7 @@ import { AngularFireModule } from '@angular/fire';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppMaterialModule } from './app-material.module';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 import { AuthService } from './services/auth.service';
 import { GithubService } from './services/github.service';
@@ -17,7 +18,6 @@ import { environment } from '../environments/environment';
 import { GithubBrowserComponent } from './components/github-browser/github-browser.component';
 import { FormsModule } from '@angular/forms';
 
-import { AceModule } from 'ngx-ace-wrapper';
 
 @NgModule({
   declarations: [
@@ -29,9 +29,9 @@ import { AceModule } from 'ngx-ace-wrapper';
     FormsModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    AceModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AppMaterialModule
+    AppMaterialModule,
+    MonacoEditorModule.forRoot()
   ],
   providers: [AuthService, GithubService, ProgressService, ApiService],
   bootstrap: [AppComponent]

@@ -15,27 +15,22 @@
     </ng-template>
   </mat-step>
   <mat-step>
-    <mat-tab-group>
-      <mat-tab label="Select a file from your repository">
-        <form>
-          <ng-template matStepLabel>Select your OpenAPI spec</ng-template>
-          <mat-form-field>
-            <mat-label>Repository</mat-label>
-            <mat-select [(value)]="selectedRepo">
-              <mat-option *ngFor="let repo of repos" [value]="repo">{{repo.full_name}}</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <sqless-github-browser *ngIf="!!selectedRepo" [repo]="selectedRepo" (fileChange)="selectedFile=$event">
-          </sqless-github-browser>
-        </form>
-      </mat-tab>
-      <mat-tab label="...or edit inline">
-        <ace [config]="aceConfig" [mode]="'yaml'" [theme]="'github'" [(value)]="code"></ace>
-      </mat-tab>
-    </mat-tab-group>
+    <h2>Select a file from your repo</h2>
+    <form>
+      <ng-template matStepLabel>Select your OpenAPI spec</ng-template>
+      <mat-form-field>
+        <mat-label>Repository</mat-label>
+        <mat-select [(value)]="selectedRepo">
+          <mat-option *ngFor="let repo of repos" [value]="repo">{{repo.full_name}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <sqless-github-browser *ngIf="!!selectedRepo" [repo]="selectedRepo" (fileChange)="selectedFile=$event;loadSpec()">
+      </sqless-github-browser>
+    </form>
+    <h2>... or edit inline</h2>
+    <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="code"></ngx-monaco-editor>
     <div>
-      <button mat-flat-button color="primary" matStepperNext [disabled]="!nextActive"
-        (click)="loadSpec()">Next</button>
+      <button mat-flat-button color="primary" matStepperNext [disabled]="!nextActive">Next</button>
     </div>
   </mat-step>
   <mat-step>
