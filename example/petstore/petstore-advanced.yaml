@@ -770,8 +770,57 @@ paths:
           description: User not found
           content: {}
 components:
-  schemas:
-    
+  x-sql-migrations:
+    - name: 0__initial
+      sql-create: >-
+        CREATE TABLE category (
+          id serial NOT NULL PRIMARY KEY, 
+          name varchar(200) NOT NULL        
+        );
+        INSERT INTO category (name)
+          VALUES ('dog'),('cat');
+        CREATE TABLE "user" (
+          id serial NOT NULL PRIMARY KEY, 
+          username varchar(200),
+          first_name varchar(200),
+          last_name varchar(200),
+          email varchar(400),
+          "password" varchar(1024),
+          phone varchar(40),
+          user_status int        
+        );
+        CREATE TABLE tag (
+          id serial NOT NULL PRIMARY KEY, 
+          name varchar(200) NOT NULL        
+        );
+        CREATE TABLE pet (
+          id serial NOT NULL PRIMARY KEY, 
+          name varchar(200) NOT NULL, 
+          photo_urls text[] NOT NULL, 
+          status varchar(20) NOT NULL, 
+          category int4 NOT NULL REFERENCES category(id)
+        );
+        CREATE TABLE pet_tag (
+          pet int4 REFERENCES pet(id),
+          tag int4 REFERENCES tag(id),
+          PRIMARY KEY (pet,tag)
+        );
+        CREATE TABLE "order" (
+          id serial NOT NULL PRIMARY KEY, 
+          pet_id int4 NOT NULL REFERENCES pet(id),
+          quantity int,
+          ship_date timestamptz,
+          status varchar(20),
+          complete boolean DEFAULT false
+        );
+      sql-rollback: >-        
+        DROP TABLE IF EXISTS category CASCADE; 
+        DROP TABLE IF EXISTS "user" CASCADE;
+        DROP TABLE IF EXISTS pet_tag CASCADE; 
+        DROP TABLE IF EXISTS pet CASCADE;
+        DROP TABLE IF EXISTS tag CASCADE;     
+        DROP TABLE IF EXISTS "order" CASCADE; 
+  schemas:    
     Category:
       type: object
       properties:
@@ -781,18 +830,7 @@ components:
         name:
           type: string
       xml:
-        name: Category
-      x-sql-ddl:
-        create: >-
-          CREATE TABLE category (
-          id serial NOT NULL PRIMARY KEY, 
-          name varchar(200) NOT NULL        
-          );
-          INSERT INTO category (name)
-          VALUES ('dog'),('cat');
-        drop: >-
-          DROP TABLE category CASCADE; 
-
+        name: Category     
     User:
       type: object
       properties:
@@ -816,21 +854,7 @@ components:
           description: User Status
           format: int32
       xml:
-        name: User
-      x-sql-ddl:
-        create: >-
-          CREATE TABLE "user" (
-          id serial NOT NULL PRIMARY KEY, 
-          username varchar(200),
-          first_name varchar(200),
-          last_name varchar(200),
-          email varchar(400),
-          "password" varchar(1024),
-          phone varchar(40),
-          user_status int        
-          )
-        drop: DROP TABLE "user" CASCADE; 
-
+        name: User      
     Tag:
       type: object
       properties:
@@ -840,16 +864,7 @@ components:
         name:
           type: string
       xml:
-        name: Tag
-      x-sql-ddl:
-        create: >-
-          CREATE TABLE tag (
-          id serial NOT NULL PRIMARY KEY, 
-          name varchar(200) NOT NULL        
-          )
-        drop: >-
-          DROP TABLE tag CASCADE; 
-
+        name: Tag       
     Pet:
       required:
         - name
@@ -887,23 +902,6 @@ components:
             - sold
       xml:
         name: Pet
-      x-sql-ddl:
-        create: >-
-          CREATE TABLE pet (
-          id serial NOT NULL PRIMARY KEY, 
-          name varchar(200) NOT NULL, 
-          photo_urls text[] NOT NULL, 
-          status varchar(20) NOT NULL, 
-          category int4 NOT NULL REFERENCES category(id)
-          );
-          CREATE TABLE pet_tag (
-            pet int4 REFERENCES pet(id),
-            tag int4 REFERENCES tag(id),
-            PRIMARY KEY (pet,tag)
-          );
-        drop: >-
-          DROP TABLE pet_tag CASCADE; DROP TABLE pet CASCADE;
-
     Order:
       type: object
       properties:
@@ -931,19 +929,6 @@ components:
           default: false
       xml:
         name: Order
-      x-sql-ddl:
-        create: >-
-          CREATE TABLE "order" (
-          id serial NOT NULL PRIMARY KEY, 
-          pet_id int4 NOT NULL REFERENCES pet(id),
-          quantity int,
-          ship_date timestamptz,
-          status varchar(20),
-          complete boolean DEFAULT false
-          )
-        drop: >-
-          DROP TABLE "order" CASCADE; 
-        
     ApiResponse:
       type: object
       properties:
