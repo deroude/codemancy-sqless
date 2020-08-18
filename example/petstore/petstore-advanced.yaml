@@ -413,7 +413,7 @@ paths:
       operationId: getInventory
       x-sql:
         - template: >-
-            SELECT status,count(id) FROM {{ schema }} pet GROUP BY status;
+            SELECT status,count(id) FROM pet GROUP BY status;
           return: true
       responses:
         '200':
