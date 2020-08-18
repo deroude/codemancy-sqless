@@ -772,7 +772,7 @@ paths:
 components:
   x-sql-migrations:
     - name: 0__initial
-      sql-create: >-
+      create: >-
         CREATE TABLE category (
           id serial NOT NULL PRIMARY KEY, 
           name varchar(200) NOT NULL        
@@ -813,7 +813,7 @@ components:
           status varchar(20),
           complete boolean DEFAULT false
         );
-      sql-rollback: >-        
+      rollback: >-        
         DROP TABLE IF EXISTS category CASCADE; 
         DROP TABLE IF EXISTS "user" CASCADE;
         DROP TABLE IF EXISTS pet_tag CASCADE; 
